@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Spacing } from '../../src/constants/theme';
+import { useTheme } from '../../src/context/ThemeContext';
+import { Spacing } from '../../src/constants/theme';
 import { WalletHeader } from '../../src/components/WalletHeader';
 import { BalanceCard } from '../../src/components/BalanceCard';
 import { ActionButtons } from '../../src/components/ActionButtons';
@@ -9,20 +10,19 @@ import { AssetTabs } from '../../src/components/AssetTabs';
 import { AssetListItem } from '../../src/components/AssetListItem';
 import { NFTList } from '../../src/components/NFTList';
 import { DeFiList } from '../../src/components/DeFiList';
-import { WarningBanner } from '../../src/components/WarningBanner';
 import { walletAddress, cryptoAssets, nftAssets, defiPositions } from '../../src/constants/mockData';
 
 type TabType = 'Crypto' | 'NFTs' | 'DeFi';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState<TabType>('Crypto');
-  const [showWarning, setShowWarning] = useState(true);
 
   const totalBalance = cryptoAssets.reduce((sum, asset) => {
-    const value = parseFloat(asset.value.replace('$', ''));
+    const value = parseFloat(asset.value.replace('$', '').replace(',', ''));
     return sum + value;
-  }, 0).toFixed(2);
+  }, 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   const handleBuy = () => {
     Alert.alert('Buy Crypto', 'Buy functionality coming soon!');
@@ -74,14 +74,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      {showWarning && (
-        <WarningBanner
-          message="Testnet mode enabled. Assets shown are for testing purposes only."
-          onClose={() => setShowWarning(false)}
-        />
-      )}
-      
+    <View style={[styles.container, { paddingTop: insets.top, backgroundColor: colors.background }]}>
       <WalletHeader
         walletAddress={walletAddress}
         onSearchPress={handleSearch}
@@ -117,7 +110,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   scrollView: {
     flex: 1,
