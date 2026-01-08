@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, BorderRadius, Typography } from '../../src/constants/theme';
+import { useTheme } from '../../src/context/ThemeContext';
+import { Spacing, BorderRadius, Typography } from '../../src/constants/theme';
 
 interface Transaction {
   id: string;
@@ -108,6 +109,7 @@ type FilterType = 'All' | 'ETH' | 'USDC';
 
 export default function TransactionsScreen() {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -121,7 +123,7 @@ export default function TransactionsScreen() {
       case 'USDC':
         return '#2775CA';
       default:
-        return Colors.primary;
+        return colors.primary;
     }
   };
 
@@ -141,11 +143,11 @@ export default function TransactionsScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: insets.top, backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Transaction History</Text>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>Transaction History</Text>
         <TouchableOpacity style={styles.filterButton}>
-          <Ionicons name="filter" size={22} color={Colors.textPrimary} />
+          <Ionicons name="filter" size={22} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
       
@@ -161,14 +163,16 @@ export default function TransactionsScreen() {
             key={filter}
             style={[
               styles.filterChip,
-              activeFilter === filter && styles.activeFilterChip,
+              { backgroundColor: colors.surface },
+              activeFilter === filter && { backgroundColor: colors.primary },
             ]}
             onPress={() => setActiveFilter(filter)}
           >
             <Text
               style={[
                 styles.filterText,
-                activeFilter === filter && styles.activeFilterText,
+                { color: colors.textSecondary },
+                activeFilter === filter && { color: colors.textPrimary },
               ]}
             >
               {filter}
@@ -181,33 +185,33 @@ export default function TransactionsScreen() {
       <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
         {filteredTransactions.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons name="document-text-outline" size={48} color={Colors.textMuted} />
-            <Text style={styles.emptyText}>No transactions found</Text>
+            <Ionicons name="document-text-outline" size={48} color={colors.textMuted} />
+            <Text style={[styles.emptyText, { color: colors.textMuted }]}>No transactions found</Text>
           </View>
         ) : (
           filteredTransactions.map((tx) => (
             <TouchableOpacity 
               key={tx.id} 
-              style={styles.transactionItem}
+              style={[styles.transactionItem, { borderBottomColor: colors.border }]}
               onPress={() => openTransactionModal(tx)}
               activeOpacity={0.7}
             >
               <View style={[styles.txIcon, { backgroundColor: getAssetColor(tx.asset) + '20' }]}>
-                <Ionicons name="arrow-down" size={20} color={Colors.success} />
+                <Ionicons name="arrow-down" size={20} color={colors.success} />
               </View>
               <View style={styles.txInfo}>
-                <Text style={styles.txType}>
+                <Text style={[styles.txType, { color: colors.textPrimary }]}>
                   Deposit {tx.asset}
                 </Text>
-                <Text style={styles.txDate}>{tx.fullDate}</Text>
+                <Text style={[styles.txDate, { color: colors.textMuted }]}>{tx.fullDate}</Text>
               </View>
               <View style={styles.txAmount}>
-                <Text style={[styles.txAmountText, styles.positiveAmount]}>
+                <Text style={[styles.txAmountText, { color: colors.success }]}>
                   {tx.amount} {tx.asset}
                 </Text>
-                <Text style={styles.txValue}>{tx.value}</Text>
+                <Text style={[styles.txValue, { color: colors.textMuted }]}>{tx.value}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} style={styles.chevron} />
+              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} style={styles.chevron} />
             </TouchableOpacity>
           ))
         )}
@@ -221,76 +225,76 @@ export default function TransactionsScreen() {
         onRequestClose={closeModal}
       >
         <Pressable style={styles.modalOverlay} onPress={closeModal}>
-          <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
+          <Pressable style={[styles.modalContent, { backgroundColor: colors.surface }]} onPress={(e) => e.stopPropagation()}>
             {selectedTransaction && (
               <>
                 <View style={styles.modalHeader}>
                   <View style={[styles.modalIcon, { backgroundColor: getAssetColor(selectedTransaction.asset) + '20' }]}>
-                    <Ionicons name="arrow-down" size={32} color={Colors.success} />
+                    <Ionicons name="arrow-down" size={32} color={colors.success} />
                   </View>
-                  <Text style={styles.modalTitle}>Deposit {selectedTransaction.asset}</Text>
-                  <Text style={[styles.modalAmount, styles.positiveAmount]}>
+                  <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Deposit {selectedTransaction.asset}</Text>
+                  <Text style={[styles.modalAmount, { color: colors.success }]}>
                     {selectedTransaction.amount} {selectedTransaction.asset}
                   </Text>
-                  <Text style={styles.modalValue}>{selectedTransaction.value}</Text>
+                  <Text style={[styles.modalValue, { color: colors.textSecondary }]}>{selectedTransaction.value}</Text>
                 </View>
 
-                <View style={styles.modalDivider} />
+                <View style={[styles.modalDivider, { backgroundColor: colors.border }]} />
 
                 <View style={styles.modalDetails}>
                   <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Status</Text>
-                    <View style={styles.statusBadge}>
-                      <Ionicons name="checkmark-circle" size={14} color={Colors.success} />
-                      <Text style={styles.statusText}>Completed</Text>
+                    <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Status</Text>
+                    <View style={[styles.statusBadge, { backgroundColor: colors.success + '20' }]}>
+                      <Ionicons name="checkmark-circle" size={14} color={colors.success} />
+                      <Text style={[styles.statusText, { color: colors.success }]}>Completed</Text>
                     </View>
                   </View>
 
                   <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Date</Text>
-                    <Text style={styles.detailValue}>{selectedTransaction.date}</Text>
+                    <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Date</Text>
+                    <Text style={[styles.detailValue, { color: colors.textPrimary }]}>{selectedTransaction.date}</Text>
                   </View>
 
                   <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Time</Text>
-                    <Text style={styles.detailValue}>{selectedTransaction.time}</Text>
+                    <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Time</Text>
+                    <Text style={[styles.detailValue, { color: colors.textPrimary }]}>{selectedTransaction.time}</Text>
                   </View>
 
                   <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Network</Text>
-                    <Text style={styles.detailValue}>{selectedTransaction.network}</Text>
+                    <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Network</Text>
+                    <Text style={[styles.detailValue, { color: colors.textPrimary }]}>{selectedTransaction.network}</Text>
                   </View>
 
                   <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>From</Text>
-                    <Text style={styles.detailValueSmall} numberOfLines={1}>
+                    <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>From</Text>
+                    <Text style={[styles.detailValueSmall, { color: colors.textPrimary }]} numberOfLines={1}>
                       {selectedTransaction.from}
                     </Text>
                   </View>
 
                   <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Transaction Hash</Text>
-                    <Text style={styles.detailValueSmall}>{selectedTransaction.txHash}</Text>
+                    <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Transaction Hash</Text>
+                    <Text style={[styles.detailValueSmall, { color: colors.textPrimary }]}>{selectedTransaction.txHash}</Text>
                   </View>
 
                   <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Block Number</Text>
-                    <Text style={styles.detailValue}>{selectedTransaction.blockNumber}</Text>
+                    <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Block Number</Text>
+                    <Text style={[styles.detailValue, { color: colors.textPrimary }]}>{selectedTransaction.blockNumber}</Text>
                   </View>
 
                   <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Gas Used</Text>
-                    <Text style={styles.detailValue}>{selectedTransaction.gasUsed}</Text>
+                    <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Gas Used</Text>
+                    <Text style={[styles.detailValue, { color: colors.textPrimary }]}>{selectedTransaction.gasUsed}</Text>
                   </View>
                 </View>
 
-                <TouchableOpacity style={styles.viewExplorerBtn} onPress={closeModal}>
-                  <Ionicons name="open-outline" size={18} color={Colors.primary} />
-                  <Text style={styles.viewExplorerText}>View on Explorer</Text>
+                <TouchableOpacity style={[styles.viewExplorerBtn, { borderColor: colors.primary }]} onPress={closeModal}>
+                  <Ionicons name="open-outline" size={18} color={colors.primary} />
+                  <Text style={[styles.viewExplorerText, { color: colors.primary }]}>View on Explorer</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-                  <Text style={styles.closeButtonText}>Close</Text>
+                <TouchableOpacity style={[styles.closeButton, { backgroundColor: colors.surfaceLight }]} onPress={closeModal}>
+                  <Text style={[styles.closeButtonText, { color: colors.textPrimary }]}>Close</Text>
                 </TouchableOpacity>
               </>
             )}
@@ -304,7 +308,6 @@ export default function TransactionsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -314,7 +317,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
   },
   title: {
-    color: Colors.textPrimary,
     fontSize: Typography.h2.fontSize,
     fontWeight: Typography.h2.fontWeight,
   },
@@ -335,19 +337,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.xl,
-    backgroundColor: Colors.surface,
     marginRight: Spacing.sm,
   },
-  activeFilterChip: {
-    backgroundColor: Colors.primary,
-  },
   filterText: {
-    color: Colors.textSecondary,
     fontSize: Typography.caption.fontSize,
     fontWeight: Typography.bodyMedium.fontWeight,
-  },
-  activeFilterText: {
-    color: Colors.textPrimary,
   },
   list: {
     flex: 1,
@@ -359,7 +353,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
   },
   txIcon: {
     width: 44,
@@ -373,12 +366,10 @@ const styles = StyleSheet.create({
     marginLeft: Spacing.md,
   },
   txType: {
-    color: Colors.textPrimary,
     fontSize: Typography.body.fontSize,
     fontWeight: Typography.bodyMedium.fontWeight,
   },
   txDate: {
-    color: Colors.textMuted,
     fontSize: Typography.small.fontSize,
     marginTop: 2,
   },
@@ -387,15 +378,10 @@ const styles = StyleSheet.create({
     marginRight: Spacing.sm,
   },
   txAmountText: {
-    color: Colors.textPrimary,
     fontSize: Typography.body.fontSize,
     fontWeight: Typography.bodyMedium.fontWeight,
   },
-  positiveAmount: {
-    color: Colors.success,
-  },
   txValue: {
-    color: Colors.textMuted,
     fontSize: Typography.small.fontSize,
     marginTop: 2,
   },
@@ -407,7 +393,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xxl * 2,
   },
   emptyText: {
-    color: Colors.textMuted,
     fontSize: Typography.body.fontSize,
     marginTop: Spacing.md,
   },
@@ -418,7 +403,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: Colors.surface,
     borderTopLeftRadius: BorderRadius.xl,
     borderTopRightRadius: BorderRadius.xl,
     paddingHorizontal: Spacing.lg,
@@ -439,7 +423,6 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   modalTitle: {
-    color: Colors.textPrimary,
     fontSize: Typography.h3.fontSize,
     fontWeight: Typography.h3.fontWeight,
     marginBottom: Spacing.xs,
@@ -450,12 +433,10 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   modalValue: {
-    color: Colors.textSecondary,
     fontSize: Typography.body.fontSize,
   },
   modalDivider: {
     height: 1,
-    backgroundColor: Colors.border,
     marginVertical: Spacing.md,
   },
   modalDetails: {
@@ -467,16 +448,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   detailLabel: {
-    color: Colors.textSecondary,
     fontSize: Typography.caption.fontSize,
   },
   detailValue: {
-    color: Colors.textPrimary,
     fontSize: Typography.caption.fontSize,
     fontWeight: Typography.bodyMedium.fontWeight,
   },
   detailValueSmall: {
-    color: Colors.textPrimary,
     fontSize: Typography.small.fontSize,
     fontWeight: Typography.bodyMedium.fontWeight,
     maxWidth: '60%',
@@ -484,14 +462,12 @@ const styles = StyleSheet.create({
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.success + '20',
     paddingHorizontal: Spacing.sm,
     paddingVertical: 4,
     borderRadius: BorderRadius.sm,
     gap: 4,
   },
   statusText: {
-    color: Colors.success,
     fontSize: Typography.small.fontSize,
     fontWeight: Typography.bodyMedium.fontWeight,
   },
@@ -503,23 +479,19 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xl,
     paddingVertical: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.primary,
     borderRadius: BorderRadius.md,
   },
   viewExplorerText: {
-    color: Colors.primary,
     fontSize: Typography.body.fontSize,
     fontWeight: Typography.bodyMedium.fontWeight,
   },
   closeButton: {
-    backgroundColor: Colors.surfaceLight,
     paddingVertical: Spacing.md,
     borderRadius: BorderRadius.md,
     alignItems: 'center',
     marginTop: Spacing.md,
   },
   closeButtonText: {
-    color: Colors.textPrimary,
     fontSize: Typography.body.fontSize,
     fontWeight: Typography.bodyMedium.fontWeight,
   },
