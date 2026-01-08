@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Colors } from '../src/constants/theme';
+import { ThemeProvider, useTheme, DarkColors } from '../src/context/ThemeContext';
 
 // Splash Screen Component
 const SplashScreen: React.FC = () => {
@@ -25,7 +25,7 @@ const SplashScreen: React.FC = () => {
 const splashStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: DarkColors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -37,10 +37,10 @@ const splashStyles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: Colors.primary + '20',
+    backgroundColor: DarkColors.primary + '20',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.primary,
+    shadowColor: DarkColors.primary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
     shadowRadius: 30,
@@ -50,7 +50,7 @@ const splashStyles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.primary,
+    backgroundColor: DarkColors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -59,7 +59,7 @@ const splashStyles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 6,
-    borderColor: Colors.textPrimary,
+    borderColor: DarkColors.textPrimary,
     borderRightColor: 'transparent',
     transform: [{ rotate: '45deg' }],
   },
@@ -69,15 +69,15 @@ const splashStyles = StyleSheet.create({
     right: -6,
     width: 12,
     height: 12,
-    backgroundColor: Colors.primary,
+    backgroundColor: DarkColors.primary,
   },
 });
 
-export default function RootLayout() {
+function RootLayoutContent() {
   const [isLoading, setIsLoading] = useState(true);
+  const { isDarkMode, colors } = useTheme();
 
   useEffect(() => {
-    // Simulate loading time for splash screen
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
@@ -87,25 +87,35 @@ export default function RootLayout() {
 
   if (isLoading) {
     return (
-      <SafeAreaProvider>
+      <>
         <StatusBar style="light" />
         <SplashScreen />
-      </SafeAreaProvider>
+      </>
     );
   }
 
   return (
-    <SafeAreaProvider>
-      <StatusBar style="light" />
+    <>
+      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: Colors.background },
+          contentStyle: { backgroundColor: colors.background },
           animation: 'fade',
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
+    </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <RootLayoutContent />
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }
