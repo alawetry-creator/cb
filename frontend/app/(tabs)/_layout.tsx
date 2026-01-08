@@ -2,18 +2,19 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { View, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, BorderRadius } from '../../src/constants/theme';
-
-type IconName = 'home' | 'home-outline' | 'globe' | 'globe-outline' | 'swap-horizontal' | 'swap-horizontal-outline' | 'document-text' | 'document-text-outline' | 'wallet' | 'wallet-outline';
+import { useTheme } from '../../src/context/ThemeContext';
+import { Spacing, BorderRadius } from '../../src/constants/theme';
 
 export default function TabLayout() {
+  const { colors } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.textMuted,
+        tabBarStyle: [styles.tabBar, { backgroundColor: colors.background, borderTopColor: colors.border }],
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarShowLabel: false,
         tabBarHideOnKeyboard: true,
       }}
@@ -23,7 +24,7 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ focused, color }) => (
-            <View style={[styles.iconContainer, focused && styles.activeIconContainer]}>
+            <View style={[styles.iconContainer, focused && { backgroundColor: colors.primary + '15' }]}>
               <Ionicons
                 name={focused ? 'home' : 'home-outline'}
                 size={24}
@@ -38,7 +39,7 @@ export default function TabLayout() {
         options={{
           title: 'Browser',
           tabBarIcon: ({ focused, color }) => (
-            <View style={[styles.iconContainer, focused && styles.activeIconContainer]}>
+            <View style={[styles.iconContainer, focused && { backgroundColor: colors.primary + '15' }]}>
               <Ionicons
                 name={focused ? 'globe' : 'globe-outline'}
                 size={24}
@@ -53,7 +54,7 @@ export default function TabLayout() {
         options={{
           title: 'Swap',
           tabBarIcon: ({ focused, color }) => (
-            <View style={[styles.iconContainer, focused && styles.activeIconContainer]}>
+            <View style={[styles.iconContainer, focused && { backgroundColor: colors.primary + '15' }]}>
               <Ionicons
                 name={focused ? 'swap-horizontal' : 'swap-horizontal-outline'}
                 size={24}
@@ -68,7 +69,7 @@ export default function TabLayout() {
         options={{
           title: 'Transactions',
           tabBarIcon: ({ focused, color }) => (
-            <View style={[styles.iconContainer, focused && styles.activeIconContainer]}>
+            <View style={[styles.iconContainer, focused && { backgroundColor: colors.primary + '15' }]}>
               <Ionicons
                 name={focused ? 'document-text' : 'document-text-outline'}
                 size={24}
@@ -83,7 +84,7 @@ export default function TabLayout() {
         options={{
           title: 'Settings',
           tabBarIcon: ({ focused, color }) => (
-            <View style={[styles.iconContainer, focused && styles.activeIconContainer]}>
+            <View style={[styles.iconContainer, focused && { backgroundColor: colors.primary + '15' }]}>
               <Ionicons
                 name={focused ? 'wallet' : 'wallet-outline'}
                 size={24}
@@ -99,9 +100,7 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: Colors.background,
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
     height: Platform.OS === 'ios' ? 88 : 68,
     paddingTop: Spacing.sm,
     paddingBottom: Platform.OS === 'ios' ? Spacing.xl : Spacing.sm,
@@ -113,8 +112,5 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: BorderRadius.md,
-  },
-  activeIconContainer: {
-    backgroundColor: Colors.primary + '15',
   },
 });
